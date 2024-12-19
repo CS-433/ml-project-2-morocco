@@ -106,13 +106,13 @@ data/
 
 6. In src/SPIN/config.py you can change the variable MODEL which by default is SPINRoadMapperFCN8() but you can also use SPINRoadMapper() with a speicfic backbone and weight (example : MODEL = SPINRoadMapper(model_func=segmentation.deeplabv3_resnet101, weights=segmentation.DeepLabV3_ResNet101_Weights))
 
-6. To test a new model change the model name in the `run.py` file (in the case of SMP change model_name too):
+7. To test a new model change the model name in the `run.py` file (in the case of SMP change model_name too):
    ```python
    model = 'SPIN' // 'UNET' // 'SMP'
    model_name = 'FPN' // 'UNET' // 'UNET_PRETRAINED'
    ```
 
-7. Run the training script:
+8. Run the training script:
    ```bash
    python run.py
    ```
