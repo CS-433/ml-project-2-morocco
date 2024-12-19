@@ -4,7 +4,7 @@ import cv2
 import torch
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
-from src.config import TRAIN_IMAGES_PATH, TRAIN_MASKS_PATH, TEST_IMAGES_PATH
+from src.SPIN.config import TRAIN_IMAGES_PATH, TRAIN_MASKS_PATH, TEST_IMAGES_PATH
 
 class RoadSegmentationDataset(Dataset):
     def __init__(self, image_dir, mask_dir=None):

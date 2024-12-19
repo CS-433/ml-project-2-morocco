@@ -1,9 +1,9 @@
 import time
 import torch
 import os
-from src.dataloader import get_dataloaders
-from src.model import SPINRoadMapper
-from src.config import DEVICE, EPOCHS, LEARNING_RATE, BATCH_SIZE, MODEL
+from src.SPIN.dataloader import get_dataloaders
+from src.SPIN.model import SPINRoadMapper
+from src.SPIN.config import DEVICE, EPOCHS, LEARNING_RATE, BATCH_SIZE, MODEL
 import torch.optim as optim
 import torch.nn as nn
 

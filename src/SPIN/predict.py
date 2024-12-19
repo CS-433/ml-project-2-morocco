@@ -1,11 +1,11 @@
 
-from src.dataloader import RoadSegmentationDataset
-from src.config import DEVICE, TEST_IMAGES_PATH
+from src.SPIN.dataloader import RoadSegmentationDataset
+from src.SPIN.config import DEVICE, TEST_IMAGES_PATH
 from torch.utils.data import DataLoader
 import torch
 import os
 import torchvision.transforms.functional as TF
-from src.best_config import BATCH_SIZE, MODEL
+from src.SPIN.best_config import BATCH_SIZE, MODEL
 
 
 

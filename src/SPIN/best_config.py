@@ -1,5 +1,5 @@
 import torch
-from src.model import SPINRoadMapper, SPINRoadMapperFCN8
+from src.SPIN.model import SPINRoadMapper, SPINRoadMapperFCN8
 import torchvision.models.segmentation as segmentation
 
 
