@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader
 import torch
 import os
 import torchvision.transforms.functional as TF
-from src.SPIN.best_config import BATCH_SIZE, MODEL
+from src.SPIN.best_config import BATCH_SIZE, MODEL, PREDICTION_PATH
 
 
 
@@ -21,7 +21,7 @@ def generate_predictions():
     test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False)
 
     # Create output folder
-    output_folder = "results/current/predictions/"
+    output_folder = PREDICTION_PATH + "SPIN/"
     os.makedirs(output_folder, exist_ok=True)
 
     # Generate predictions

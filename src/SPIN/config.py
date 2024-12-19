@@ -8,6 +8,8 @@ TRAIN_IMAGES_PATH = DATA_PATH + "training/images/"
 TRAIN_MASKS_PATH = DATA_PATH + "training/groundtruth/"
 TEST_IMAGES_PATH = DATA_PATH + "test_set_images/"
 
+PREDICTION_PATH = DATA_PATH + "predictions/"
+
 # Parameters
 MODEL = SPINRoadMapperFCN8()
 BATCH_SIZE = 16

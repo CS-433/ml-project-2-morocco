@@ -24,6 +24,37 @@ This project explores semantic segmentation techniques for road detection in aer
   - Size: 400x400 pixels.
   - Channels: RGB.
 
+### Download Instructions
+To download the dataset, follow these steps:
+1. Navigate to the [AIcrowd Road Segmentation Challenge](https://www.aicrowd.com/challenges/epfl-ml-road-segmentation).
+2. Log in with your credentials. If you do not have an account, create one using your institutional email.
+3. Download the dataset files:
+   - `train.zip` (contains training images and masks).
+   - `test.zip` (contains test images).
+4. Extract the downloaded files:
+   ```bash
+   unzip train.zip -d data/training
+   unzip test.zip -d data/test_set_images
+### Creating the Validation Set
+The dataset does not include a predefined validation set. To create one:
+
+1. Split the `train` directory into:
+   - A **training subset** containing 90% of the images and masks.
+   - A **validation subset** containing the remaining 10%.
+
+2. Manually move the selected files into the following structure:
+````bash
+data/
+├── training/
+│   ├── images/  # Training images
+│   └── groundtruth/   # Corresponding segmentation masks
+├── validation/
+│   ├── images/  # Validation images
+│   └── groundtruth/   # Corresponding segmentation masks
+└── test/
+    └── test_set_images/  # Test images
+````
+
 ### Preprocessing Steps
 - Normalization of pixel values.
 - Data augmentation techniques such as flipping and rotation.

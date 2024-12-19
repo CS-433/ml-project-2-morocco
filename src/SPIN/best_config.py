@@ -8,6 +8,10 @@ TRAIN_IMAGES_PATH = DATA_PATH + "training/images/"
 TRAIN_MASKS_PATH = DATA_PATH + "training/groundtruth/"
 TEST_IMAGES_PATH = DATA_PATH + "test_set_images/"
 
+
+PREDICTION_PATH = DATA_PATH + "predictions/"
+
+
 # Parameters
 MODEL = SPINRoadMapper(model_func=segmentation.DeepLabV3_ResNet101_Weights, weights=segmentation.DeepLabV3_ResNet101_Weights)
 BATCH_SIZE = 16

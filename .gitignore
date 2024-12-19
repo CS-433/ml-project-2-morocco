@@ -1,5 +1,12 @@
 results/
-data/
 models/
+<<<<<<< HEAD
 lightning_logs/
 dataset/
+=======
+lightning_logs/*
+data/predictions/*
+data/test_set_images/*
+data/training/*
+data/validation/*
+>>>>>>> 5c5aede045028d44e5a66a187c0ae32791a62dfc
