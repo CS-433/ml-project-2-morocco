@@ -3,43 +3,37 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torchvision.models.segmentation import fcn_resnet50
 from torchvision.models.segmentation import FCN_ResNet50_Weights
-fcn = fcn_resnet50(weights=FCN_ResNet50_Weights.DEFAULT)
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
 
+
+# SPIN Module (unchanged from your code)
 class SPINModule(nn.Module):
     def __init__(self, in_channels):
         super(SPINModule, self).__init__()
-
-        # Spatial Space Graph Reasoning
-        self.spatial_proj = nn.Conv2d(in_channels, in_channels, kernel_size=1)
-        self.global_pooling = nn.AdaptiveAvgPool2d(1)
-        self.diag_softmax = nn.Softmax(dim=-1)
-
-        # Interaction Space Graph Reasoning
-        self.inter_proj = nn.Conv2d(in_channels, in_channels, kernel_size=1)
-        self.reverse_proj = nn.Conv2d(in_channels, in_channels, kernel_size=1)
-
-        # Attention mechanism
+        self.conv1 = nn.Sequential(
+            nn.Conv2d(in_channels, in_channels, kernel_size=3, padding=1),
+            nn.BatchNorm2d(in_channels),
+            nn.ReLU(inplace=True)
+        )
+        self.graph_layer = nn.Linear(in_channels, in_channels)  # Interaction space reasoning        
+        # Spatial Attention
         self.spatial_attn = nn.Sequential(
             nn.Conv2d(in_channels, 1, kernel_size=7, padding=3),
             nn.Sigmoid()
         )
 
     def forward(self, x):
-        # Spatial reasoning
-        spatial_out = self.spatial_proj(x)
-        spatial_flat = spatial_out.view(x.shape[0], x.shape[1], -1)
-        spatial_norm = self.diag_softmax(torch.matmul(spatial_flat, spatial_flat.transpose(1, 2)))
-        spatial_proj = torch.matmul(spatial_norm, spatial_flat).view_as(spatial_out)
-
-        # Interaction space reasoning
-        inter_out = self.inter_proj(x)
-        inter_out = self.reverse_proj(inter_out)
-
-        # Spatial Attention
+        spatial_out = self.conv1(x)
+        batch_size, channels, height, width = x.shape
+        x_flat = x.view(batch_size, channels, -1).transpose(1, 2)
+        interaction_out = self.graph_layer(x_flat)
+        interaction_out = interaction_out.transpose(1, 2).view(batch_size, channels, height, width)
         attn_map = self.spatial_attn(x)
-        output = spatial_proj * attn_map + inter_out
+        spatial_out = spatial_out * attn_map
+        return spatial_out + interaction_out
 
-        return output
 
 class SPINPyramid(nn.Module):
     def __init__(self, in_channels):
@@ -47,18 +41,26 @@ class SPINPyramid(nn.Module):
         self.spin1 = SPINModule(in_channels)
         self.spin2 = SPINModule(in_channels)
         self.spin3 = SPINModule(in_channels)
-        self.weights = nn.Parameter(torch.ones(3))  # Learnable fusion weights
 
     def forward(self, x):
+        # Original input size
         original_size = x.shape[2:]
-        x_half = F.interpolate(x, scale_factor=0.5, mode='bilinear')
-        x_quarter = F.interpolate(x, scale_factor=0.25, mode='bilinear')
 
-        out1 = self.spin1(x)
-        out2 = F.interpolate(self.spin2(x_half), size=original_size, mode='bilinear')
-        out3 = F.interpolate(self.spin3(x_quarter), size=original_size, mode='bilinear')
+        # Downsample to half and quarter scales
+        x_half = F.interpolate(x, scale_factor=0.5, mode='bilinear', align_corners=True)
+        x_quarter = F.interpolate(x, scale_factor=0.25, mode='bilinear', align_corners=True)
 
-        return self.weights[0] * out1 + self.weights[1] * out2 + self.weights[2] * out3
+        # Apply SPIN Modules
+        out1 = self.spin1(x)  # Original scale
+        out2 = self.spin2(x_half)
+        out3 = self.spin3(x_quarter)
+
+        # Upsample back to the original size
+        out2 = F.interpolate(out2, size=original_size, mode='bilinear', align_corners=True)
+        out3 = F.interpolate(out3, size=original_size, mode='bilinear', align_corners=True)
+
+        # Combine outputs
+        return out1 + out2 + out3
 
 
 class FPNDecoder(nn.Module):
@@ -95,98 +97,84 @@ class FPNDecoder(nn.Module):
             last_inner = F.interpolate(last_inner, size=lateral.shape[2:], mode="nearest") + lateral
             outputs.insert(0, self.output_convs[i](last_inner))  # Refine and store output
 
-
-
         return outputs  # Multi-scale feature maps (FPN output)
 
 
-class ResidualBlock(nn.Module):
-    def __init__(self, in_channels, out_channels):
-        super(ResidualBlock, self).__init__()
-        self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1)
-        self.bn1 = nn.BatchNorm2d(out_channels)
-        self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1)
-        self.bn2 = nn.BatchNorm2d(out_channels)
 
-        # Fix shortcut logic: Only apply 1x1 conv if channels are different
-        self.shortcut = nn.Identity()
-        if in_channels != out_channels:
-            self.shortcut = nn.Conv2d(in_channels, out_channels, kernel_size=1)
-
-    def forward(self, x):
-        residual = self.shortcut(x)  # Shortcut connection
-        x = F.relu(self.bn1(self.conv1(x)))  # Conv1 + BN + ReLU
-        x = self.bn2(self.conv2(x))  # Conv2 + BN
-        return F.relu(x + residual)  # Add shortcut + activation
-
-
-class HourglassModule(nn.Module):
-    def __init__(self, in_channels, mid_channels):
-        super(HourglassModule, self).__init__()
-
-        # Project input to mid_channels
-        self.input_proj = nn.Conv2d(in_channels, mid_channels, kernel_size=1)
-
-        # Downsampling Path
-        self.down1 = ResidualBlock(mid_channels, mid_channels)
-        self.down2 = ResidualBlock(mid_channels, mid_channels)
-        self.pool = nn.MaxPool2d(2)
-
-        # Bottleneck
-        self.bottleneck = ResidualBlock(mid_channels, mid_channels)
-
-        # Upsampling Path
-        self.up1 = nn.ConvTranspose2d(mid_channels, mid_channels, kernel_size=2, stride=2)
-        self.up2 = nn.ConvTranspose2d(mid_channels, mid_channels, kernel_size=2, stride=2)
-
-    def forward(self, x):
-        # Project input to mid_channels (64 channels)
-        x_proj = self.input_proj(x)  # Ensures x_proj is 64 channels
-
-        # Downsampling
-        x1 = self.down1(x_proj)
-        x2 = self.down2(self.pool(x1))
-
-        # Bottleneck
-        x3 = self.bottleneck(x2)
-
-        # Upsampling + Skip Connections
-        x4 = self.up1(x3) + x1  # Skip connection from down1
+class SPINRoadMapper(nn.Module):
+    def __init__(self, model_func, weights, num_classes=1):
+        super(SPINRoadMapper, self).__init__()
+        # Load pretrained backbone model
+        model = model_func(weights=weights)
+        self.backbone = model.backbone
         
-        # Upsample input projection to match x4 spatial dimensions
-        x_proj_upsampled = F.interpolate(x_proj, size=self.up2(x4).shape[2:], mode='bilinear', align_corners=True)
+        # Assuming the 'out' channel sizes for FCN and Deeplab are similar
+        # This could be made more dynamic by examining the backbone's output features
+        out_channels = 2048  # Typically for ResNet50
+        aux_channels = 1024  # Typically the second last block of features
 
-        x5 = self.up2(x4) + x_proj_upsampled  # Final upsample + skip connection from input projection
+        # Decoder and other modules need to be adjusted based on actual usage and outputs
+        self.decoder = FPNDecoder(in_channels_list=[out_channels, aux_channels], out_channels=256)
+        self.spin_pyramid = SPINPyramid(in_channels=256)
+        self.segmentation_head = nn.Conv2d(256, 1, kernel_size=1)
 
-        return x5
+    def forward(self, x):
+        features = self.backbone(x)
+        
+        # Adjust this to handle different feature structures depending on the model
+        fpn_features = self.decoder([features['out'], features['aux']])
+        combined_features = torch.sum(torch.stack(fpn_features), dim=0)
+        spin_out = self.spin_pyramid(combined_features)
+        output = self.segmentation_head(spin_out)
+        output = F.interpolate(output, size=x.shape[2:], mode='bilinear', align_corners=True)
+        
+        return output  
+
 
 
 class SPINRoadMapperFCN8(nn.Module):
     def __init__(self):
         super(SPINRoadMapperFCN8, self).__init__()
-        # Replace FCN backbone with Hourglass backbone
-        self.feature_extractor = HourglassModule(in_channels=3, mid_channels=64)
-
+        # Load pretrained FCN-8 backbone
+        fcn = fcn_resnet50(weights=FCN_ResNet50_Weights.DEFAULT)
+        self.backbone = fcn.backbone  # Use FCN's ResNet50 encoder
+        
+        # FPN Decoder - Expecting only the 'out' and 'aux' features
+        self.fpn_decoder = FPNDecoder(in_channels_list=[2048, 1024], out_channels=256)
+        
         # SPIN Pyramid
-        self.spin_pyramid = SPINPyramid(in_channels=64)
+        self.spin_pyramid = SPINPyramid(in_channels=256)
 
         # Segmentation head
-        self.segmentation_head = nn.Conv2d(64, 1, kernel_size=1)
-        self.orientation_head = nn.Conv2d(64, 1, kernel_size=1)
+        self.segmentation_head = nn.Conv2d(256, 1, kernel_size=1)
 
     def forward(self, x):
-        # Step 1: Extract features using Hourglass backbone
-        features = self.feature_extractor(x)
+        # Extract features
+        features = self.backbone(x)
+        
+        # FPN Decoder takes 'out' and 'aux' feature maps
+        fpn_features = self.fpn_decoder([features['out'], features['aux']])
+        
+        # Sum up FPN outputs to combine multi-scale features
+        combined_features = torch.sum(torch.stack(fpn_features), dim=0)
+        
+        # SPIN Pyramid for multi-scale reasoning
+        spin_out = self.spin_pyramid(combined_features)
 
-        # Step 2: SPIN Pyramid for multi-scale reasoning
-        spin_out = self.spin_pyramid(features)
+        # Final segmentation output
+        output = self.segmentation_head(spin_out)
+        
+        # Upsample output to match input size
+        output = F.interpolate(output, size=x.shape[2:], mode="bilinear", align_corners=True)
 
-        # Step 3: Segmentation and orientation outputs
-        seg_output = self.segmentation_head(spin_out)
-        orientation_output = self.orientation_head(spin_out)
+        return output
 
-        # Step 4: Upsample to match input size
-        seg_output = F.interpolate(seg_output, size=x.shape[2:], mode="bilinear", align_corners=True)
-        orientation_output = F.interpolate(orientation_output, size=x.shape[2:], mode="bilinear", align_corners=True)
+    
 
-        return seg_output, orientation_output
+        
+    
+
+    
+    
+    
+

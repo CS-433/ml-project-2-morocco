@@ -1,16 +1,18 @@
-from src.SPIN.model import SPINRoadMapperFCN8
-from src.SPIN.dataloader import RoadSegmentationDataset
+
+from src.dataloader import RoadSegmentationDataset
 from src.config import DEVICE, TEST_IMAGES_PATH
 from torch.utils.data import DataLoader
 import torch
 import os
 import torchvision.transforms.functional as TF
-from src.config import BATCH_SIZE
+from src.best_config import BATCH_SIZE, MODEL
+
+
 
 
 def generate_predictions():
     # Load model
-    model = SPINRoadMapperFCN8().to(DEVICE)
+    model = MODEL.to(DEVICE)
     model.load_state_dict(torch.load("results/current/checkpoints/model.pth"))
     model.eval()
 
@@ -27,8 +29,7 @@ def generate_predictions():
     for idx, images in enumerate(test_loader):
         images = images.to(DEVICE)
         with torch.no_grad():
-            seg_output, _ = model(images)  # Unpack the outputs
-            outputs = torch.sigmoid(seg_output)  # Apply sigmoid only to the segmentation output
+            outputs = torch.sigmoid(model(images))
         preds = (outputs > 0.5).float()  # Threshold predictions
 
         # Save predictions for the current batch
