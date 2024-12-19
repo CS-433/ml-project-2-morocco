@@ -5,7 +5,7 @@ from src.SPIN.predict import generate_predictions as generate_predictions_SPIN
 from src.UNET.inference import predict_show_image, test_predictions
 from src.SMP_ARCHITECTURES.train import train as train_model_SMP
 from src.SMP_ARCHITECTURES.inference import show_validation_inferences as show_validation_inferences_SMP, get_predictions as get_predictions_SMP
-from src.config import MODEL_PATH
+from src.UNET.config import MODEL_PATH
 import os
 
 if __name__ == "__main__":

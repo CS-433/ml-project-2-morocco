@@ -13,7 +13,7 @@ PREDICTION_PATH = DATA_PATH + "predictions/"
 
 
 # Parameters
-MODEL = SPINRoadMapper(model_func=segmentation.DeepLabV3_ResNet101_Weights, weights=segmentation.DeepLabV3_ResNet101_Weights)
+MODEL = SPINRoadMapper(model_func=segmentation.deeplabv3_resnet101, weights=segmentation.DeepLabV3_ResNet101_Weights)
 BATCH_SIZE = 16
 LEARNING_RATE = 1e-4
 EPOCHS = 30
