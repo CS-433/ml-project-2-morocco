@@ -21,7 +21,7 @@ def generate_predictions():
     test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False)
 
     # Create output folder
-    output_folder = PREDICTION_PATH + "SPIN/"
+    output_folder = "results/current/predictions"
     os.makedirs(output_folder, exist_ok=True)
 
     # Generate predictions
