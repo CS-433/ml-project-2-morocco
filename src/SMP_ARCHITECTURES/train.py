@@ -3,7 +3,7 @@ import torch
 
 from src.SMP_ARCHITECTURES.model import RoadModel
 from src.SMP_ARCHITECTURES.dataset import get_dataloaders
-from src.config import EPOCHS, BATCH_SIZE, MODEL_PATH
+from src.SMP_ARCHITECTURES.config import EPOCHS, BATCH_SIZE, MODEL_PATH
 
 
 

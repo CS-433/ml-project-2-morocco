@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 from src.UNET.unet import UNet
 from src.UNET.dataset import get_dataloaders, testDataset
-from src.config import DEVICE, TEST_IMAGES_PATH, PREDICTION_PATH
+from src.UNET.config import DEVICE, TEST_IMAGES_PATH, PREDICTION_PATH
 
 def predict_show_image(model_pth):
     model = UNet(in_channels=3, num_classes=1).to(DEVICE)

@@ -8,7 +8,7 @@ import albumentations as A
 
 from src.SMP_ARCHITECTURES.model import RoadModel
 from src.SMP_ARCHITECTURES.dataset import get_dataloaders
-from src.config import BATCH_SIZE, DEVICE, MODEL_PATH, PREDICTION_PATH
+from src.SMP_ARCHITECTURES.config import BATCH_SIZE, DEVICE, MODEL_PATH, PREDICTION_PATH
 
 
 def show_validation_inferences(model_name):

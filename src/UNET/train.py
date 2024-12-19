@@ -7,7 +7,7 @@ import os
 
 from src.UNET.unet import UNet
 from src.UNET.dataset import get_dataloaders
-from src.config import LEARNING_RATE, BATCH_SIZE, EPOCHS, MODEL_PATH, DEVICE, PATIENCE
+from src.UNET.config import LEARNING_RATE, BATCH_SIZE, EPOCHS, MODEL_PATH, DEVICE, PATIENCE
 
 
 class EarlyStopping:

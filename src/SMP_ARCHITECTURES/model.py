@@ -2,7 +2,7 @@ import torch
 import pytorch_lightning as pl
 import segmentation_models_pytorch as smp
 from torch.optim import lr_scheduler
-from src.config import EPOCHS
+from src.SMP_ARCHITECTURES.config import EPOCHS
 
 T_MAX = 50*90
 

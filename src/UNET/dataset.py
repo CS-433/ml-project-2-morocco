@@ -2,7 +2,7 @@ import os
 from PIL import Image
 from torch.utils.data import Dataset
 from torchvision import transforms
-from src.config import TRAIN_IMAGES_PATH, TRAIN_MASKS_PATH, VAL_IMAGES_PATH, VAL_MASKS_PATH, TEST_IMAGES_PATH
+from src.UNET.config import TRAIN_IMAGES_PATH, TRAIN_MASKS_PATH, VAL_IMAGES_PATH, VAL_MASKS_PATH, TEST_IMAGES_PATH
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
 import numpy as np
