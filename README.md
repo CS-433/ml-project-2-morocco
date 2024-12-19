@@ -97,8 +97,17 @@ data/
    ```bash
    python run.py
    ```
+4. Create a directory structure for storing the results of the predictions and model checkpoints. Run the following commands in your terminal:
 
-4. To test a new model change the model name in the `run.py` file (in the case of SMP change model_name too):
+   ```bash
+mkdir -p results/predictions
+
+
+5. For each model, you can adjust the model’s hyperparameters and select the backbone in `config.py`. For optimal performance as demonstrated in our tests, use the configurations specified in `best_config.py` (copy paste in `config.py`) for the SPIN model.
+
+6. In src/SPIN/config.py you can change the variable MODEL which by default is SPINRoadMapperFCN8() but you can also use SPINRoadMapper() with a speicfic backbone and weight (example : MODEL = SPINRoadMapper(model_func=segmentation.deeplabv3_resnet101, weights=segmentation.DeepLabV3_ResNet101_Weights))
+
+6. To test a new model change the model name in the `run.py` file (in the case of SMP change model_name too):
    ```python
    model = 'SPIN' // 'UNET' // 'SMP'
    model_name = 'FPN' // 'UNET' // 'UNET_PRETRAINED'
