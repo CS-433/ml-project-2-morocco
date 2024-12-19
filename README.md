@@ -93,12 +93,13 @@ data/
    ```bash
    pip install -r requirements.txt
    ```
-3. Run the training script:
-   ```bash
-   python run.py
-   ```
+
+
 4. Create a directory structure for storing the results of the predictions and model checkpoints (model.pth). Run the following commands in your terminal:
-mkdir -p results/current/predictions
+   ```bash
+   mkdir -p results/current/predictions
+   ```
+
 
 
 5. For each model, you can adjust the model’s hyperparameters and select the backbone in `config.py`. For optimal performance as demonstrated in our tests, use the configurations specified in `best_config.py` (copy paste in `config.py`) for the SPIN model.
@@ -110,6 +111,12 @@ mkdir -p results/current/predictions
    model = 'SPIN' // 'UNET' // 'SMP'
    model_name = 'FPN' // 'UNET' // 'UNET_PRETRAINED'
    ```
+
+7. Run the training script:
+   ```bash
+   python run.py
+   ```
+
 
 ---
 
