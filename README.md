@@ -97,10 +97,8 @@ data/
    ```bash
    python run.py
    ```
-4. Create a directory structure for storing the results of the predictions and model checkpoints. Run the following commands in your terminal:
-
-   ```bash
-mkdir -p results/predictions
+4. Create a directory structure for storing the results of the predictions and model checkpoints (model.pth). Run the following commands in your terminal:
+mkdir -p results/current/predictions
 
 
 5. For each model, you can adjust the model’s hyperparameters and select the backbone in `config.py`. For optimal performance as demonstrated in our tests, use the configurations specified in `best_config.py` (copy paste in `config.py`) for the SPIN model.
