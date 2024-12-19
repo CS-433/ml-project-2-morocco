@@ -1,4 +1,7 @@
 results/
-data/
 models/
-lightning_logs/
+lightning_logs/*
+data/predictions/*
+data/test_set_images/*
+data/training/*
+data/validation/*
