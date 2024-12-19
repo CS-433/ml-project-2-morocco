@@ -3,15 +3,17 @@ from src.SPIN.model import SPINRoadMapper, SPINRoadMapperFCN8
 import torchvision.models.segmentation as segmentation
 
 
-DATA_PATH = "dataset/"
+DATA_PATH = "data/"
 TRAIN_IMAGES_PATH = DATA_PATH + "training/images/"
 TRAIN_MASKS_PATH = DATA_PATH + "training/groundtruth/"
 TEST_IMAGES_PATH = DATA_PATH + "test_set_images/"
 
+
 PREDICTION_PATH = DATA_PATH + "predictions/"
 
+
 # Parameters
-MODEL = SPINRoadMapperFCN8()
+MODEL = SPINRoadMapper(model_func=segmentation.deeplabv3_resnet101, weights=segmentation.DeepLabV3_ResNet101_Weights)
 BATCH_SIZE = 16
 LEARNING_RATE = 1e-4
 EPOCHS = 30
