@@ -3,7 +3,7 @@ from src.SPIN.model import SPINRoadMapper, SPINRoadMapperFCN8
 import torchvision.models.segmentation as segmentation
 
 
-DATA_PATH = "dataset/"
+DATA_PATH = "data/"
 TRAIN_IMAGES_PATH = DATA_PATH + "training/images/"
 TRAIN_MASKS_PATH = DATA_PATH + "training/groundtruth/"
 TEST_IMAGES_PATH = DATA_PATH + "test_set_images/"
